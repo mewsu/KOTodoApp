@@ -1,0 +1,58 @@
+.frame {
+    border: 3px dotted gray;
+    margin-top: 10px;
+    padding: 40px;
+    border-radius: 10px;
+    height: auto;
+    min-height: 900px;
+}
+.topLogo {
+    font-size: 75px;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: fantasy;   
+    margin-bottom: 20px;
+}
+.addNewItemSection {
+    width: 100%;
+    border: 1px solid black;
+    padding: 15px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+}
+.listItemsDiv {
+    margin-top: 10px;
+    margin-bottom: 10px;        
+}
+.singleList {
+    border: 5px solid black;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    width: 100%;
+    word-wrap: break-word;
+}
+.editItemName {
+
+}
+.warningText {
+    color: red;   
+}
+.editItemButton {
+    cursor: pointer;   
+}
+.listNameDisplay {
+    font-size: 25px;
+    font-family: fantasy;   
+}
+.listItemDisplay {
+    font-family: monospace;
+}
+.totalListsDisplay {
+    font-size: 20px;
+    font-family: cursive;
+}
+.itemCheckButton {
+    cursor: pointer;   
+}
