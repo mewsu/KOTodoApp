@@ -10,7 +10,8 @@
             margin-top: 10px;
             padding: 40px;
             border-radius: 10px;
-            height: 900px;  
+            height: auto;
+            min-height: 900px;
         }
         .topLogo {
             font-size: 75px;
@@ -59,6 +60,9 @@
             font-size: 20px;
             font-family: cursive;
         }
+        .itemCheckButton {
+            cursor: pointer;   
+        }
     </style>
 
 <div class="container frame">
@@ -101,7 +105,9 @@
 
                         <li>
                             <span data-bind="text: listItem.itemName"></span>
-                            (<span data-bind="text: listItem.getPriorityString()"></span>)<br />
+                            (<span data-bind="text: listItem.getPriorityString()"></span>)
+                            <a class="itemCheckButton" data-bind="click: $parent.removeItem, visible: !$parent.isEditing()"><span class="glyphicon glyphicon-ok"></span></a>
+                            <br />
                             <input class="editItemName" data-bind="value: listItem.itemName, visible: listItem.showChangeBox() && $parent.isEditing(), valueUpdate: 'afterkeydown'" />   
                             <select data-bind="value: listItem.itemPriority, visible: listItem.showChangeBox() && $parent.isEditing()">
                                 <option value="1">High</option>
@@ -153,10 +159,9 @@
 
         self.listItems = ko.observableArray(listItems);
         
-        // Item sorting function
+        // Item sorting function, sorts from High -> Low
         self.sortedListItems = ko.computed(function () {
            return self.listItems().sort(function (left, right) {
-               console.log(left.itemPriority(), right.itemPriority());
                var left = left.itemPriority();
                var right = right.itemPriority();
                 return (left == right ?
@@ -168,6 +173,8 @@
         // Removes an item from this list
         self.removeItem = function (itemToRemove) {
             self.listItems.remove(itemToRemove);
+            if (self.listItems().length == 0)
+                self.removeList();
         }
         
         // Insert a new item into this list
@@ -186,7 +193,9 @@
         // Removes this entire list from the ViewModel
         self.removeList = function () {
             ViewModel.Lists.remove(this);
-            ViewModel.IsCreatingList(false);
+            // There are no other lists being edited, allow creation of new list
+            if (ViewModel.Lists().length == 0)
+                ViewModel.IsCreatingList(false);
         }
         
         // Displays editables and disable creating/editing another list
@@ -204,16 +213,6 @@
             self.isEditing(false);
             ViewModel.IsCreatingList(false);
         }
-        
-//        self.onChangeListName = function () {
-//            if (self.showChangeBox()) {
-//                self.showChangeBox(false); 
-//                self.buttonText('Change');
-//            } else {
-//                self.showChangeBox(true);
-//                self.buttonText('Done');
-//            }
-//        }
     };
     
     // ListItem object
@@ -232,7 +231,7 @@
         self.buttonText = ko.observable('Edit');
         self.showChangeBox = ko.observable(false);
         
-        
+        // Toggles button texts and edit boxes visibility
         self.onChangeItemName = function () {
             if (self.showChangeBox()) {
                 self.showChangeBox(false); 
