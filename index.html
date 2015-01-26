@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<head>
+    <title>My Todo Lists SPA</title>
+</head>
+<body>
+
+    <style>
+        .frame {
+            border: 3px dotted gray;
+            margin-top: 10px;
+            padding: 40px;
+            border-radius: 10px;
+            height: 900px;  
+        }
+        .topLogo {
+            font-size: 75px;
+            text-align: center;
+            text-transform: uppercase;
+            font-family: fantasy;   
+            margin-bottom: 20px;
+        }
+        .addNewItemSection {
+            width: 100%;
+            border: 1px solid black;
+            padding: 15px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+        }
+        .listItemsDiv {
+            margin-top: 10px;
+            margin-bottom: 10px;        
+        }
+        .singleList {
+            border: 5px solid black;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 10px;
+            width: 100%;
+            word-wrap: break-word;
+        }
+        .editItemName {
+
+        }
+        .warningText {
+            color: red;   
+        }
+        .editItemButton {
+            cursor: pointer;   
+        }
+        .listNameDisplay {
+            font-size: 25px;
+            font-family: fantasy;   
+        }
+        .listItemDisplay {
+            font-family: monospace;
+        }
+        .totalListsDisplay {
+            font-size: 20px;
+            font-family: cursive;
+        }
+    </style>
+
+<div class="container frame">
+    <div class="topLogo"><u>My Todo Lists</u></div>
+    <span class="totalListsDisplay" data-bind="css: { warningText: Lists().length == 3 }">Total Lists: <span data-bind="text: Lists().length"></span>/3</span>
+    <form data-bind="submit: CreateList">
+        List Name: 
+        <input type="text" name="listName" id="listName" />
+        <button class="btn btn-default" data-bind="enable: !IsCreatingList() && Lists().length < 3" type="submit" >Create List</button>
+    </form>
+
+    
+    <div class="row listDiv" data-bind="foreach: { data: Lists, as: 'list' }">
+        
+        <div class="col-md-4">
+            <div class="singleList">
+                <span class="listNameDisplay" data-bind="text: list.listName"></span>
+                (<span data-bind="text: list.listItems().length"></span> Items)
+                <input data-bind="value: list.listName, visible: list.showChangeBox, valueUpdate: 'afterkeydown'" />
+    <!--            <button data-bind="text: buttonText, click: list.onChangeListName, visible: isEditing">Change</button>-->
+                <br />
+                <!-- Add New Item Section --->
+                <div class="addNewItemSection" data-bind="visible: isEditing">
+                    <u>New Item</u><br />
+                    <form data-bind="submit: insertNewItem" >
+                        Item Name : <input type="text" name="itemName" id="itemName" /><br />
+                        Item Priority : 
+                        <select name="itemPriority" id="itemPriority">
+                            <option value="1">High</option>
+                            <option value="2">Medium</option>
+                            <option value="3">Low</option>
+                        </select>
+                        <br />
+                        <button class="btn btn-default" type="submit">Add</button><br />
+                    </form>
+                </div>    
+
+                <div class="listItemsDiv">
+                    <ul class="listItemDisplay" data-bind="foreach: { data: list.sortedListItems, as: 'listItem' }">
+
+                        <li>
+                            <span data-bind="text: listItem.itemName"></span>
+                            (<span data-bind="text: listItem.getPriorityString()"></span>)<br />
+                            <input class="editItemName" data-bind="value: listItem.itemName, visible: listItem.showChangeBox() && $parent.isEditing(), valueUpdate: 'afterkeydown'" />   
+                            <select data-bind="value: listItem.itemPriority, visible: listItem.showChangeBox() && $parent.isEditing()">
+                                <option value="1">High</option>
+                                <option value="2">Medium</option>
+                                <option value="3">Low</option>
+                            </select>
+                            <a class="editItemButton" data-bind="text: listItem.buttonText, click: listItem.onChangeItemName, visible: $parent.isEditing">Edit</a>
+                            <a class="editItemButton" data-bind="click: $parent.removeItem, visible: $parent.isEditing" >Delete</a>
+                        </li>
+                    </ul>
+                </div>
+                <button class="btn btn-default" data-bind="click: editList, visible: !isEditing(), enable: !$parent.IsCreatingList()" >Edit</button>
+                <button class="btn btn-default" data-bind="click: doneEditing, visible: isEditing, enable: list.listItems().length > 0">Done</button>
+                <button class="btn btn-default" data-bind="click: removeList, visible: isEditing," >Delete List</button><br />
+                <span class="warningText" data-bind="visible: list.listItems().length == 0">You must add at least one item to this list</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script src="knockout-3.2.0.js"></script>
+<script src="jquery-2.1.3.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+<script>
+    
+    var ViewModel  = {
+        Lists : ko.observableArray(),
+        CreateList : function (formElement) {
+            var $form = $(formElement);
+            var listName = $form.find('#listName').val();
+            if (listName) {
+                var list = new List(listName, []);
+                this.Lists.push(list);
+                formElement.reset();
+                this.IsCreatingList(true);
+            }
+        },
+        IsCreatingList : ko.observable(false)
+    };
+    
+    // List object
+    function List (listName, listItems) {
+        var self = this;
+        self.listName = ko.observable(listName);
+        self.isEditing = ko.observable(true);
+        self.buttonText = ko.observable('Done');
+
+        self.listItems = ko.observableArray(listItems);
+        
+        // Item sorting function
+        self.sortedListItems = ko.computed(function () {
+           return self.listItems().sort(function (left, right) {
+               console.log(left.itemPriority(), right.itemPriority());
+               var left = left.itemPriority();
+               var right = right.itemPriority();
+                return (left == right ?
+                    0 :
+                    (left < right ? -1 : 1));
+           });
+        });
+        
+        // Removes an item from this list
+        self.removeItem = function (itemToRemove) {
+            self.listItems.remove(itemToRemove);
+        }
+        
+        // Insert a new item into this list
+        self.insertNewItem = function (formElement) {
+            var $form = $(formElement);
+            var itemName = $form.find('#itemName').val();
+            var itemPriority = $form.find('#itemPriority').val();
+
+            if (itemName) {
+                var listItem = new ListItem(itemName, itemPriority);
+                self.listItems.push(listItem);
+                formElement.reset();
+            }
+        }   
+        
+        // Removes this entire list from the ViewModel
+        self.removeList = function () {
+            ViewModel.Lists.remove(this);
+            ViewModel.IsCreatingList(false);
+        }
+        
+        // Displays editables and disable creating/editing another list
+        self.editList = function () {
+            self.isEditing(true);
+            ViewModel.IsCreatingList(true);
+        }
+        
+        self.doneEditing = function () {
+            for (var i = 0; i < self.listItems().length; i++) {
+                var item = self.listItems()[i];
+                item.showChangeBox(false);
+                item.buttonText('Edit');
+            }
+            self.isEditing(false);
+            ViewModel.IsCreatingList(false);
+        }
+        
+//        self.onChangeListName = function () {
+//            if (self.showChangeBox()) {
+//                self.showChangeBox(false); 
+//                self.buttonText('Change');
+//            } else {
+//                self.showChangeBox(true);
+//                self.buttonText('Done');
+//            }
+//        }
+    };
+    
+    // ListItem object
+    function ListItem (itemName, priority) {
+        var self = this;
+        self.itemName = ko.observable(itemName);
+        self.itemPriority = ko.observable(priority);
+        self.itemPriorityToString = {
+            1 : 'High',
+            2 : 'Medium',
+            3 : 'Low'  
+        }
+        self.getPriorityString = function() {
+            return self.itemPriorityToString[self.itemPriority()];
+        }
+        self.buttonText = ko.observable('Edit');
+        self.showChangeBox = ko.observable(false);
+        
+        
+        self.onChangeItemName = function () {
+            if (self.showChangeBox()) {
+                self.showChangeBox(false); 
+                self.buttonText('Edit');
+            } else {
+                self.showChangeBox(true);
+                self.buttonText('Done');
+            }
+        }
+    }
+    
+    // Init
+    ko.applyBindings(ViewModel);
+</script>
