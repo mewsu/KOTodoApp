@@ -4,7 +4,7 @@ SPA Todo list app using Knockout and Bootstrap
 Live version: http://zeiontic.github.io/KOTodoApp/
 
 Restrictions:
-- You can only create up tp 3 lists
+- You can create up to 3 lists
 - List items are unlimited
 - You can only edit one list at a time
 - You cannot create a new list while editing an existing list
