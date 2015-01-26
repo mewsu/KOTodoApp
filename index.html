@@ -11,7 +11,7 @@
         <form data-bind="submit: CreateList">
             List Name: 
             <input type="text" name="listName" id="listName" />
-            <button class="btn btn-default" data-bind="enable: !IsCreatingList() && Lists().length < 3" type="submit" >Create List</button>
+            <button class="btn btn-default" data-bind="enable: IsNoListEditing() && Lists().length < 3" type="submit" >Create List</button>
         </form>
 
 
@@ -45,7 +45,7 @@
                             <li>
                                 <span data-bind="text: listItem.itemName"></span>
                                 (<span data-bind="text: listItem.getPriorityString()"></span>)
-                                <a class="itemCheckButton" data-bind="click: $parent.removeItem, visible: !$parent.isEditing()"><span class="glyphicon glyphicon-ok"></span></a>
+                                <a class="itemCheckButton" data-bind="click: $parent.removeItem, visible: $root.IsNoListEditing()"><span class="glyphicon glyphicon-ok"></span></a>
                                 <br />
                                 <input class="editItemName" data-bind="value: listItem.itemName, visible: listItem.showChangeBox() && $parent.isEditing(), valueUpdate: 'afterkeydown'" />   
                                 <select data-bind="value: listItem.itemPriority, visible: listItem.showChangeBox() && $parent.isEditing()">
@@ -58,7 +58,7 @@
                             </li>
                         </ul>
                     </div>
-                    <button class="btn btn-default" data-bind="click: editList, visible: !isEditing(), enable: !$parent.IsCreatingList()" >Edit</button>
+                    <button class="btn btn-default" data-bind="click: editList, visible: !isEditing(), enable: $root.IsNoListEditing()" >Edit</button>
                     <button class="btn btn-default" data-bind="click: doneEditing, visible: isEditing, enable: list.listItems().length > 0">Done</button>
                     <button class="btn btn-default" data-bind="click: removeList, visible: isEditing," >Delete List</button><br />
                     <span class="warningText" data-bind="visible: list.listItems().length == 0">You must add at least one item to this list</span>

@@ -7,10 +7,17 @@ var ViewModel  = {
             var list = new List(listName, []);
             this.Lists.push(list);
             formElement.reset();
-            this.IsCreatingList(true);
         }
     },
-    IsCreatingList : ko.observable(false)
+    IsNoListEditing : function () {
+        var lists = this.Lists();
+        for (var i = 0; i < lists.length; i++) {
+            if (lists[i].isEditing()) {
+                return false;   
+            }
+        }
+        return true;
+    }
 };
 
 // List object
@@ -42,6 +49,8 @@ function List (listName, listItems) {
             self.removeList();
     }
 
+
+    
     // Insert a new item into this list
     self.insertNewItem = function (formElement) {
         var $form = $(formElement);
@@ -58,25 +67,21 @@ function List (listName, listItems) {
     // Removes this entire list from the ViewModel
     self.removeList = function () {
         ViewModel.Lists.remove(this);
-        // There are no other lists being edited, allow creation of new list
-        if (ViewModel.Lists().length == 0)
-            ViewModel.IsCreatingList(false);
     }
 
     // Displays editables and disable creating/editing another list
     self.editList = function () {
         self.isEditing(true);
-        ViewModel.IsCreatingList(true);
     }
 
     self.doneEditing = function () {
+        // Close all edit boxes
         for (var i = 0; i < self.listItems().length; i++) {
             var item = self.listItems()[i];
             item.showChangeBox(false);
             item.buttonText('Edit');
         }
         self.isEditing(false);
-        ViewModel.IsCreatingList(false);
     }
 };
 
